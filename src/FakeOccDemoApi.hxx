@@ -5,6 +5,8 @@
 
 #include "occ-handle-adapter.hxx"
 
+
+
 class Example_Base;
 DEFINE_STANDARD_HANDLE(Example_Base,Standard_Transient)
 

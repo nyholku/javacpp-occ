@@ -1,6 +1,7 @@
 #define DEBUG 0
 #include <jni.h>
 
+#ifndef __JAVACPP__
 static jobject occ_downcast(JNIEnv* env, opencascade::handle<Standard_Transient> p) {
         std::string klassName = std::string("occ/TKernel$")+std::string(p->DynamicType()->Name());
         if (DEBUG) std::cerr << "Try to find class " <<  klassName << std::endl;
@@ -85,3 +86,4 @@ public:
     mysmart_ptr<T> smartPtr2;
     mysmart_ptr<T>& smartPtr;
 };
+#endif

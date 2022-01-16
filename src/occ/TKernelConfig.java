@@ -19,8 +19,8 @@ import org.bytedeco.javacpp.tools.*;
 		include = { //
 				//"Standard_DefineAlloc.hxx",//
 				//"Standard.hxx", //
-				"Standard_Std.hxx", //
-				"Standard_Size.hxx", //
+	//			"Standard_Std.hxx", //
+	//			"Standard_Size.hxx", //
 				//"Standard_TypeDef.hxx",
 				//"Standard_values.h",
 				//"stddef.h",
@@ -35,12 +35,12 @@ import org.bytedeco.javacpp.tools.*;
 				//"Standard_ExtString.hxx", //
 				//"Standard_Address.hxx", //
 
-				"Standard_PrimitiveTypes.hxx", //
+		//		"Standard_PrimitiveTypes.hxx", //
 				"Standard_Transient.hxx", //
 				"Standard_Handle.hxx", //
 				"Standard_OStream.hxx", //
 				"Standard_Type.hxx", //
-				"FakeOccDemoApi.hxx",
+				"occ-handle-adapter.hxx", //
 		//        		"Standard_Std.hxx",
 		//        		"Standard_Address.hxx",
 		//        		"Standard_math.hxx",
@@ -87,6 +87,7 @@ public class TKernelConfig implements InfoMapper {
 		infoMap.put(new Info("__QNX__").define(false));
 		infoMap.put(new Info("_MYSKIP__").define(false));
 		infoMap.put(new Info("_WIN32").define(false));
+		infoMap.put(new Info("__JAVACPP__").define(true));
 		infoMap.put(new Info("strcasecmp").define(false));
 		infoMap.put(new Info("defined(_WIN32) && !defined(OCCT_STATIC_BUILD) && !defined(HAVE_NO_DLL)").define(false));
 		infoMap.put(new Info("Standard_Integer").cppTypes("int"));
@@ -112,15 +113,9 @@ public class TKernelConfig implements InfoMapper {
 
 		infoMap.put(new Info("CHAR_BIT").cppTypes("8"));
 		infoMap.put(new Info("BITSPERBYTE").cppTypes("8"));
-		//		infoMap.put(new Info("Standard_False = ").skip());
-		//		infoMap.put(new Info("Standard_True = ").skip());
-		//		infoMap.put(new Info("Standard_False").cppTypes("0"));
-		//		infoMap.put(new Info("Standard_True").cppTypes("1"));
 		infoMap.put(new Info("Standard_True").javaText("public native @MemberGetter @Const @ByRef int _Stadard_True();"));
 		infoMap.put(new Info("Standard_False").javaText("public native @MemberGetter @Const @ByRef int _Stadard_False();"));
-		//		infoMap.put(new Info("BITSPERBYTE").javaText("public native @MemberGetter @Const @ByRef int _BITSPERBYTE();"));
-		infoMap.put(new Info("Standard_DefineAlloc.h").linePatterns("# define STANDARD_", "// END COMPLEX DECLARATIONS").skip());
-
+		infoMap.put(new Info("Standard_Transient.hxx").linePatterns("public:", "DEFINE_STANDARD_ALLOC").skip());
 	}
 
 
