@@ -1,9 +1,9 @@
 
 import occ.TKernel.*;
+import occ.*;
 
 public class OccDowncastDemo {
 	public static void main(String[] args) {
-
 		System.out.println("Demo that:");
 		System.out.println("- creates an Example_Base instance");
 		System.out.println("- creates an Example_Derived instance");
@@ -20,10 +20,9 @@ public class OccDowncastDemo {
 		System.out.println("ret java class name   = " + ret.getClass().getCanonicalName());
 		System.out.println("ret occ dynamic name  = " + ret.DynamicType().Name().getString());
 		System.out.println("ret instanceof        = " + (ret instanceof Example_Derived));
-		Example_Derived derived = (Example_Derived)ret;
-		System.out.println("(Example_Derived)ret  = " +"ok");
+		Example_Derived derived = (Example_Derived) ret;
+		System.out.println("(Example_Derived)ret  = " + "ok");
 		System.out.println("Done.");
-
 	}
 
 }

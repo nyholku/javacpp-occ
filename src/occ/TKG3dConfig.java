@@ -23,7 +23,7 @@ public class TKG3dConfig  implements InfoMapper {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.PARAMETER })
-	@Adapter(value = "occ_smart_ptr_adpter", downcast = true) // Refers to the C++ adapter class
+	@Adapter(value = "occ_smart_ptr_adpter") // Refers to the C++ adapter class
 	public @interface MySmartPtr { // Creates a Java annotation type to be used for smart pointers
 		/** template type */
 		String value() default "";
