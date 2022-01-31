@@ -3,9 +3,6 @@
 #include "Standard_Transient.hxx"
 #include "Standard_Handle.hxx"
 
-#include "occ-handle-adapter.hxx"
-
-
 
 class Example_Base;
 DEFINE_STANDARD_HANDLE(Example_Base,Standard_Transient)
@@ -28,6 +25,8 @@ class Example_Derived : public Example_Base {
         public:
                 virtual Handle(Example_Base)  foobar(Handle(Example_Base) p) override {
                         return someFoo(p);
+                        };
+                void barfoo(Handle(Example_Base) p) {
                         };
         private:
                 Handle(Example_Base) member; // not used

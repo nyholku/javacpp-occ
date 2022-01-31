@@ -5,10 +5,13 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.HashMap;
 
 import org.bytedeco.javacpp.*;
 import org.bytedeco.javacpp.annotation.*;
 import org.bytedeco.javacpp.tools.*;
+
+import occ.TKernel.Standard_Transient;
 
 @Properties(value = @Platform(compiler = "cpp11",
 
@@ -19,8 +22,8 @@ import org.bytedeco.javacpp.tools.*;
 		include = { //
 				//"Standard_DefineAlloc.hxx",//
 				//"Standard.hxx", //
-	//			"Standard_Std.hxx", //
-	//			"Standard_Size.hxx", //
+				//			"Standard_Std.hxx", //
+				//			"Standard_Size.hxx", //
 				//"Standard_TypeDef.hxx",
 				//"Standard_values.h",
 				//"stddef.h",
@@ -35,21 +38,20 @@ import org.bytedeco.javacpp.tools.*;
 				//"Standard_ExtString.hxx", //
 				//"Standard_Address.hxx", //
 
-		//		"Standard_PrimitiveTypes.hxx", //
+				//		"Standard_PrimitiveTypes.hxx", //
 				"Standard_Transient.hxx", //
 				"Standard_Handle.hxx", //
 				"Standard_OStream.hxx", //
 				"Standard_Type.hxx", //
 				"occ-handle-adapter.hxx", //
-		//        		"Standard_Std.hxx",
-		//        		"Standard_Address.hxx",
-		//        		"Standard_math.hxx",
-		//        		"Standard_TypeDef.hxx",
-		//        		"Standard_Type.hxx",
-		//
-		//        		"Standard.hxx",
-		//        		"Standard_DefineAlloc.hxx",
-		}, //
+				//        		"Standard_Std.hxx",
+				//        		"Standard_Address.hxx",
+				//        		"Standard_math.hxx",
+				//        		"Standard_TypeDef.hxx",
+				//        		"Standard_Type.hxx",
+				//
+				//        		"Standard.hxx",
+				"FakeOccDemoApi.hxx", }, //
 		preload = { "" }//
 ), target = "occ.TKernel")
 
@@ -57,7 +59,8 @@ public class TKernelConfig implements InfoMapper {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target({ ElementType.METHOD, ElementType.PARAMETER })
-	@Adapter(value = "occ_smart_ptr_adpter", downcast = true) // Refers to the C++ adapter class
+	@Adapter(value = "occ_smart_ptr_adpter") // Refers to the C++ adapter class
+	@Downcast(downcaster = "downcast") //
 	public @interface MySmartPtr { // Creates a Java annotation type to be used for smart pointers
 		/** template type */
 		String value() default "";
@@ -78,12 +81,12 @@ public class TKernelConfig implements InfoMapper {
 		infoMap.put(new Info("Standard_ENABLE_DEPRECATION_WARNINGS").cppTypes().annotations());
 		infoMap.put(new Info("Standard_UNUSED").cppTypes().annotations());
 		//infoMap.put(new Info("DEFINE_STANDARD_RTTIEXT").cppTypes().annotations());
-		//infoMap.put(new Info("DEFINE_STANDARD_ALLOC", "HUUHAA").cppTypes().annotations());
+		//infoMap.put(new Info("DEFINE_STANDARD_ALLOC").cppText("void XXX (){}"));
 		//infoMap.put(new Info("TARGET_OS_IPHONE","0").cppTypes().annotations());
 
 		// following maps C++ smart pointer (opencascade::handle) to the c++ adapter class by attaching the annotation
 		// @MySmartPtr to the corresponding java adapter class  parameters whose corresponding C++ type is opencascade::handle
-		infoMap.put(new Info("opencascade::handle").skip().annotations("@MySmartPtr"));
+		infoMap.put(new Info("opencascade::handle").skip().annotations("@MySmartPtr", "@Downcast").downCaster("TKernel.downcast"));
 		infoMap.put(new Info("__QNX__").define(false));
 		infoMap.put(new Info("_MYSKIP__").define(false));
 		infoMap.put(new Info("_WIN32").define(false));
@@ -115,8 +118,37 @@ public class TKernelConfig implements InfoMapper {
 		infoMap.put(new Info("BITSPERBYTE").cppTypes("8"));
 		infoMap.put(new Info("Standard_True").javaText("public native @MemberGetter @Const @ByRef int _Stadard_True();"));
 		infoMap.put(new Info("Standard_False").javaText("public native @MemberGetter @Const @ByRef int _Stadard_False();"));
-		infoMap.put(new Info("Standard_Transient.hxx").linePatterns("public:", "DEFINE_STANDARD_ALLOC").skip());
-	}
+		//infoMap.put(new Info("Standard_Transient.hxx").linePatterns("public:\\s+DEFINE_STANDARD_ALLOC", "_ALLOC").skip());
 
+		String downcaster = "\n" + //
+				"static java.util.HashMap<String, Class> __downcastClassCache=new java.util.HashMap<String, Class>();\n" + //
+				"\n" + //
+				"static Standard_Transient downcast(Standard_Transient obj) {\n" + //
+				"	try {\n" + //
+				"		Class<?> clazz = __downcastClassCache.get(obj.DynamicType__().Name().getString());\n" + //
+				"		java.lang.reflect.Constructor<?> ctor = clazz.getConstructor(Pointer.class);\n" + //
+				"		return (Standard_Transient) ctor.newInstance(obj.getPointer());\n" + //
+				"	} catch (Exception e) {\n" + //
+				"		e.printStackTrace();\n" + //
+				"		return null;\n" + //
+				"		}\n" + //
+				"	}\n" + //
+				"\n";
+
+		String staticInitilizer = "\n" + //
+				"static {\n" + //
+				"	Class  thisClass  = new Object() { }.getClass().getEnclosingClass();\n" + //	
+				"	for (Class clazz: thisClass.getClasses()) {\n" + //
+				"		if (Standard_Transient.class.isAssignableFrom(clazz)) {\n" + //
+				"			String clazzName = clazz.getName().substring(clazz.getName().lastIndexOf(\"$\")+1);\n" + //
+				"			TKernel.__downcastClassCache.put(clazzName,clazz);\n" + //
+				"			}\n" + //
+				"		}\n" + //
+				"	}\n" + //
+				"\n";
+
+		infoMap.put(new Info("@occ.TKernel").javaText(downcaster));
+		infoMap.put(new Info("@").javaText(staticInitilizer));
+	}
 
 }
