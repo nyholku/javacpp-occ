@@ -53,8 +53,6 @@ import org.bytedeco.javacpp.tools.*;
 		preload = { "" }//
 ), target = "occ.TKernel")
 
-@Downcast(classcache = true)
-
 public class TKernelConfig implements InfoMapper {
 	@Documented
 	@Retention(RetentionPolicy.RUNTIME)
